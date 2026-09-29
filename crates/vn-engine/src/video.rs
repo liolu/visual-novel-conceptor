@@ -72,19 +72,19 @@ mod imp {
                     let mut out = child.stdout.take().unwrap();
                     let (atx, arx) = sync_channel::<Vec<f32>>(64);
                     std::thread::spawn(move || loop {
-                        let mut buf = vec![0u8; 4096 * 4];
-                        match out.read(&mut buf) {
-                            Ok(0) | Err(_) => break,
-                            Ok(n) => {
-                                let n = n - n % 4;
-                                let samples = buf[..n]
-                                    .chunks_exact(4)
-                                    .map(|c| f32::from_le_bytes([c[0], c[1], c[2], c[3]]))
-                                    .collect();
-                                if atx.send(samples).is_err() {
-                                    break;
-                                }
-                            }
+                        // Blocs de taille fixe : on ne coupe jamais un échantillon en deux.
+                        let mut buf = [0u8; 4096 * 4];
+                        if out.read_exact(&mut buf).is_err() {
+                            break;
+                        }
+                        let samples = buf
+                            .as_chunks::<4>()
+                            .0
+                            .iter()
+                            .map(|c| f32::from_le_bytes(*c))
+                            .collect();
+                        if atx.send(samples).is_err() {
+                            break;
                         }
                     });
                     player.append(crate::audio::ChannelSource {

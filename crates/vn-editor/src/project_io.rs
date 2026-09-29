@@ -202,9 +202,17 @@ pub fn export_game(dir: &Path, project: &Project, out_root: &Path) -> Result<Exp
     let mut notes = Vec::new();
     let mut executable = None;
     let exe_suffix = std::env::consts::EXE_SUFFIX;
-    let player = crate::updater::exe_path()
-        .and_then(|e| e.parent().map(|p| p.join(format!("vn-player{exe_suffix}"))))
-        .filter(|p| p.exists());
+    // Le lecteur à côté de l'éditeur (nom simple, ou nom de la release GitHub).
+    let player = crate::updater::exe_path().and_then(|e| {
+        let dir = e.parent()?.to_path_buf();
+        [
+            format!("vn-player{exe_suffix}"),
+            format!("vn-player-{}{exe_suffix}", crate::updater::target()),
+        ]
+        .into_iter()
+        .map(|n| dir.join(n))
+        .find(|p| p.exists())
+    });
     match player {
         Some(player) => {
             let player_bytes = std::fs::read(&player).map_err(|e| e.to_string())?;

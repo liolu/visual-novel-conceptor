@@ -43,12 +43,18 @@ jobs:
           VERSION=$(grep -m1 '^version' Cargo.toml | cut -d '"' -f2)
           test "v$VERSION" = "${GITHUB_REF_NAME}" || { echo "Tag ${GITHUB_REF_NAME} ≠ version $VERSION"; exit 1; }
       - run: cargo build --release --target ${{ matrix.target }} -p vn-editor -p vn-player
-      - name: Renomme les binaires
+      - name: Prépare les fichiers (binaires pour la mise à jour auto + archive ZIP)
         shell: bash
         run: |
-          mkdir dist
+          mkdir -p dist pkg/VN-Conceptor
           cp target/${{ matrix.target }}/release/vn-editor${{ matrix.ext }} dist/vn-editor-${{ matrix.target }}${{ matrix.ext }}
           cp target/${{ matrix.target }}/release/vn-player${{ matrix.ext }} dist/vn-player-${{ matrix.target }}${{ matrix.ext }}
+          # Archive prête à l'emploi : dézipper puis double-cliquer sur vn-editor.
+          cp target/${{ matrix.target }}/release/vn-editor${{ matrix.ext }} pkg/VN-Conceptor/
+          cp target/${{ matrix.target }}/release/vn-player${{ matrix.ext }} pkg/VN-Conceptor/
+          cp README.md pkg/VN-Conceptor/
+          cd pkg
+          if [ "$RUNNER_OS" = "Windows" ]; then 7z a ../dist/VN-Conceptor-${{ matrix.target }}.zip VN-Conceptor; else zip -r ../dist/VN-Conceptor-${{ matrix.target }}.zip VN-Conceptor; fi
       - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/v')
         with:
