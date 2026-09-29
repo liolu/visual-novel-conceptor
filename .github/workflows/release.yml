@@ -86,6 +86,25 @@ jobs:
         id: ndk
         with:
           ndk-version: r27c
+      - name: Clé de signature Android
+        # Android refuse d'installer un APK non signé. Si le secret ANDROID_KEYSTORE_BASE64
+        # existe on l'utilise (clé stable : les mises à jour s'installent par-dessus),
+        # sinon une clé temporaire est générée.
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore"
+            PASS="$KEYSTORE_PASSWORD"
+          else
+            PASS="vnconceptor"
+            keytool -genkeypair -v -keystore "$RUNNER_TEMP/release.keystore" -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 -storepass "$PASS" -keypass "$PASS" \
+              -dname "CN=VN Conceptor"
+          fi
+          echo "CARGO_APK_RELEASE_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
+          echo "CARGO_APK_RELEASE_KEYSTORE_PASSWORD=$PASS" >> "$GITHUB_ENV"
       - name: Construit l'APK de l'éditeur
         env:
           ANDROID_NDK_ROOT: ${{ steps.ndk.outputs.ndk-path }}
