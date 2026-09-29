@@ -1,0 +1,55 @@
+[package]
+name = "vn-editor"
+description = "VN Conceptor : logiciel de création de Visual Novel."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[[bin]]
+name = "vn-editor"
+path = "src/main.rs"
+
+[dependencies]
+vn-core = { path = "../vn-core" }
+vn-engine = { path = "../vn-engine" }
+# Fonctions communes à toutes les plateformes ; le reste est ajouté par cible ci-dessous.
+eframe = { version = "0.35.0", default-features = false, features = ["default_fonts", "wgpu"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+semver = "1.0"
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+ureq = "3.4.2"
+
+# Sélecteur de fichiers natif + remplacement de l'exécutable (mise à jour auto) : PC uniquement.
+[target.'cfg(not(any(target_os = "android", target_os = "ios", target_arch = "wasm32")))'.dependencies]
+rfd = "0.17.2"
+self-replace = "1.5.0"
+
+[target.'cfg(target_os = "android")'.dependencies]
+eframe = { version = "0.35.0", default-features = false, features = ["android-native-activity"] }
+winit = { version = "0.30", default-features = false, features = ["android-native-activity"] }
+
+# PC / Web : fonctions par défaut d'eframe (accessibilité, X11/Wayland, décorations de fenêtre).
+[target.'cfg(not(target_os = "android"))'.dependencies]
+eframe = { version = "0.35.0", features = ["accesskit", "wayland", "x11", "web_screen_reader"] }
+winit = "0.30"
+
+[package.metadata.android]
+package = "com.vnconceptor.editor"
+apk_name = "vn-conceptor"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi", "x86_64-linux-android"]
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "VN Conceptor"
+
+[[package.metadata.android.uses_permission]]
+name = "android.permission.INTERNET"

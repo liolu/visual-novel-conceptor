@@ -1,0 +1,47 @@
+[package]
+name = "vn-player"
+description = "Lecteur du jeu compilé (aucune fonction d'édition)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[[bin]]
+name = "vn-player"
+path = "src/main.rs"
+
+[dependencies]
+vn-core = { path = "../vn-core" }
+vn-engine = { path = "../vn-engine" }
+# Fonctions communes à toutes les plateformes ; le reste est ajouté par cible ci-dessous.
+eframe = { version = "0.35.0", default-features = false, features = ["default_fonts", "wgpu"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+eframe = { version = "0.35.0", default-features = false, features = ["android-native-activity"] }
+winit = { version = "0.30", default-features = false, features = ["android-native-activity"] }
+
+# PC / Web : fonctions par défaut d'eframe (accessibilité, X11/Wayland, décorations de fenêtre).
+[target.'cfg(not(target_os = "android"))'.dependencies]
+eframe = { version = "0.35.0", features = ["accesskit", "wayland", "x11", "web_screen_reader"] }
+winit = "0.30"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = ["Document", "Window", "Element", "HtmlCanvasElement"] }
+
+# Paquet Android (cargo apk build -p vn-player --lib --release)
+[package.metadata.android]
+package = "com.vnconceptor.game"
+apk_name = "vn-game"
+build_targets = ["aarch64-linux-android", "armv7-linux-androideabi", "x86_64-linux-android"]
+
+[package.metadata.android.sdk]
+min_sdk_version = 24
+target_sdk_version = 34
+
+[package.metadata.android.application]
+label = "Visual Novel"

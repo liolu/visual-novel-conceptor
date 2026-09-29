@@ -1,0 +1,13 @@
+{
+  "id": "porte_monnaie",
+  "name": "Porte-monnaie",
+  "version": "1.0.0",
+  "author": "VN Conceptor",
+  "description": "Gagner / dépenser de l'argent, et brancher si le joueur n'a pas assez.",
+  "enabled": true,
+  "script": "fn gagner(args) {\n    let v = get_var(\"argent\");\n    if type_of(v) != \"i64\" { v = 0; }\n    v += parse_int(args.montant);\n    set_var(\"argent\", v);\n    notify(\"💰 +\" + args.montant + \" (total \" + v + \")\");\n}\n\nfn depenser(args) {\n    let v = get_var(\"argent\");\n    if type_of(v) != \"i64\" { v = 0; }\n    let m = parse_int(args.montant);\n    if v >= m {\n        set_var(\"argent\", v - m);\n        notify(\"💸 -\" + m);\n    } else if args.scene_si_pauvre != \"\" {\n        jump(args.scene_si_pauvre);\n    } else {\n        notify(\"Pas assez d'argent !\");\n    }\n}\n",
+  "commands": [
+    { "name": "gagner", "label": "Gagner de l'argent", "params": [ { "name": "montant", "default": "10" } ] },
+    { "name": "depenser", "label": "Dépenser", "params": [ { "name": "montant", "default": "5" }, { "name": "scene_si_pauvre", "default": "" } ] }
+  ]
+}

@@ -1,0 +1,14 @@
+[workspace]
+resolver = "2"
+members = ["crates/vn-core", "crates/vn-engine", "crates/vn-editor", "crates/vn-player"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/liolu/visual-novel-conceptor"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true

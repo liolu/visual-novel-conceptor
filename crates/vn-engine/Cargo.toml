@@ -1,0 +1,20 @@
+[package]
+name = "vn-engine"
+description = "Rendu egui du jeu : images (toutes les formats + animations), son, vidéo."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+vn-core = { path = "../vn-core" }
+egui = "0.35.0"
+# Tous les formats d'image gérés en Rust pur (png, jpeg, gif animé, webp animé, apng, bmp, tiff, tga, ico, dds, hdr, exr, qoi, pnm, farbfeld...).
+image = { version = "0.25.10", default-features = false, features = ["bmp", "dds", "exr", "ff", "gif", "hdr", "ico", "jpeg", "png", "pnm", "qoi", "tga", "tiff", "webp"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+# Tous les formats audio de symphonia (mp3, ogg/vorbis, flac, wav, aac, m4a/alac, aiff, caf, mkv...).
+rodio = { version = "0.22.2", default-features = false, features = ["playback", "symphonia-all"] }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+rodio = { version = "0.22.2", default-features = false, features = ["playback", "symphonia-all", "wasm-bindgen"] }
