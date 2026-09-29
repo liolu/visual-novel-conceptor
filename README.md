@@ -83,7 +83,7 @@ VN_EMBED_PACK=/chemin/game.vnpak trunk build --release crates/vn-player/web/inde
 
 | | Windows | macOS | Linux | Android | Web / iPhone |
 |---|---|---|---|---|---|
-| Jeu (`vn-player`) | ✅ | ✅ | ✅ | ✅ (APK, sans vidéo) | ✅ (sans vidéo) |
+| Jeu (`vn-player`) | ✅ | ✅ | ✅ | ✅ (APK Android 8+, sans vidéo) | ✅ (sans vidéo) |
 | Logiciel (`vn-editor`) | ✅ | ✅ | ✅ | ⚠ expérimental (pas de sélecteur de fichiers) | ✖ |
 
 ## Mise à jour automatique
